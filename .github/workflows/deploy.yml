@@ -18,16 +18,43 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node & cache
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
-      - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
+          cache-dependency-path: package-lock.json
+
+      - name: Debug: show workspace
+        run: |
+          node -v
+          npm -v
+          pwd
+          ls -la
+
+      - name: Install deps
+        run: npm ci --no-audit --no-fund
+
+      # If your app is Create React App and build fails on warnings,
+      # flip the next line to: run: CI=false npm run build
+      - name: Build
+        run: npm run build
+
+      - name: Upload artifact (dist)
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: dist
+
+      # If anything failed above, print npm logs to the job output
+      - name: Debug: show npm logs on failure
+        if: failure()
+        run: |
+          echo "---- npm debug logs ----"
+          ls -la || true
+          test -f npm-debug.log && cat npm-debug.log || true
 
   deploy:
     needs: build
