@@ -29,12 +29,14 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      - name: Debug: show workspace
-        run: |
-          node -v
-          npm -v
-          pwd
-          ls -la
+      - name: Debug node
+        run: node -v
+      - name: Debug npm
+        run: npm -v
+      - name: Debug pwd
+        run: pwd
+      - name: Debug ls
+        run: ls -la
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
